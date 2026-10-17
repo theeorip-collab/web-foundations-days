@@ -218,6 +218,7 @@ WHERE id = :seat_id
 -- If not, it must roll back and return HTTP 409 Conflict.
 
 COMMIT;
+```
 ## 5. Architecture diagram and components
 
 ```text
