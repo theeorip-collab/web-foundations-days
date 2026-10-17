@@ -191,7 +191,33 @@ The server checks the number of rows updated. If it is not exactly one for each 
 When payment succeeds, the system verifies that the hold belongs to the user and has not expired, then marks the seats SOLD and creates the ticket records in a transaction. Unique constraints, payment idempotency, and safe processing of payment-provider callbacks protect against duplicate sales and duplicate ticket issuance.
 
 Expired holds are released through a scheduled worker or a safe transactional process. Payment and expiry processing must be coordinated so that a seat is not released while a valid payment is being confirmed.
+### Concurrency isolation strategy
 
+TicketHub uses PostgreSQL transactions with row-level locks to prevent race conditions when multiple customers request the same seat. The primary database is the source of truth for all holds and purchases.
+
+The application uses the READ COMMITTED isolation level together with `SELECT ... FOR UPDATE` to lock the requested seat rows while checking and changing their status. Locking prevents two transactions from simultaneously claiming the same seat. A conditional update provides an additional safeguard.
+
+Example transaction for holding one seat:
+
+```sql
+BEGIN;
+
+SELECT id, status
+FROM Seats
+WHERE id = :seat_id
+FOR UPDATE;
+
+UPDATE Seats
+SET status = 'HELD',
+    held_by_user_id = :user_id,
+    hold_expires_at = :expiry_time
+WHERE id = :seat_id
+  AND status = 'AVAILABLE';
+
+-- The application must verify that exactly one row was updated.
+-- If not, it must roll back and return HTTP 409 Conflict.
+
+COMMIT;
 ## 5. Architecture diagram and components
 
 ```text
