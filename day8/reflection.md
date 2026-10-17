@@ -1,0 +1,9 @@
+# Day 8 Reflection
+
+The hardest concept for me was understanding how to prevent two people from buying the same seat when many users try to purchase tickets at the same time. I learned that checking seat availability in the browser is not enough because two users could see the same seat as available. The solution is to use database transactions, conditional updates, and constraints so that only one user can successfully hold a seat. I also learned the importance of temporary holds, expiry times, and idempotency when processing payments.
+
+I overcame this challenge by breaking the system into smaller parts: estimating traffic, identifying the API endpoints, designing the database tables, and explaining how the components communicate. Calculating the normal traffic and the popular concert sale helped me understand why a system needs to plan for sudden spikes rather than rely only on average traffic.
+
+For my QuickNotes capstone, I would improve the system design documentation by making the architecture diagram clearer and explaining how the application would scale as the number of users grows. I would also test more edge cases, particularly duplicate requests, errors, and concurrent operations. I would use the feedback from my assessment to identify any requirements that need more detail and validate my changes against the rubric.
+
+My next learning goal is to understand cloud architecture and database transactions more deeply. I want to practise deploying an application, monitoring its performance, and learning how services such as load balancers, databases, and queues work together in a production environment.
